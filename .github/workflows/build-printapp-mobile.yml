@@ -1,1 +1,32 @@
+name: Build PrintApp Mobile
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'printapp-mobile.zip'
+      - '.github/workflows/build-printapp-mobile.yml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Unpack project
+        run: |
+          rm -rf build-src
+          mkdir build-src
+          unzip -q printapp-mobile.zip -d build-src
+          chmod +x build-src/gradlew
+      - name: Build debug APK
+        working-directory: build-src
+        run: ./gradlew --no-daemon assembleDebug
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: printapp-mobile-debug-apk
+          path: build-src/app/build/outputs/apk/debug/app-debug.apk
 
